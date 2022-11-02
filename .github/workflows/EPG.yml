@@ -20,7 +20,7 @@ jobs:
         run: git checkout
 
       - name: Download
-        run: Invoke-RestMethod "http://${{ secrets.URL }/xmltv.php?username=${{ secrets.USER }}&password=${{ secrets.PASS }}&output=ts" -OutFile "EPG.xml"
+        run: Invoke-RestMethod "http://${{ secrets.URL }}/xmltv.php?username=${{ secrets.USER }}&password=${{ secrets.PASS }}&output=ts" -OutFile "EPG.xml"
           
       - name: Cleanup
         run: |
