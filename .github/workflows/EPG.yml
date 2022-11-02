@@ -1,9 +1,8 @@
 #################################################################################################
-
 name: EPG
 on:
   schedule:
-  - cron: "0 5 * * *"
+  - cron: "15 */6 * * *"
   workflow_dispatch:
   
 defaults:
@@ -16,12 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Checkout
-        run: git checkout
-
-      - name: Download
-        run: Invoke-RestMethod "http://${{ secrets.URL }/xmltv.php?username=${{ secrets.USER }}&password=${{ secrets.PASS }}&output=ts" -OutFile "EPG.xml"
-          
+      - name: Download & Retry
+        uses: nick-fields/retry@v2.8.2
+        with:
+            timeout_minutes: 2
+            max_attempts: 3
+            shell: pwsh
+            retry_on_exit_code: 1
+            retry_wait_seconds: 900
+            command: Invoke-RestMethod "http://${{ secrets.URL }}/xmltv.php?username=${{ secrets.USER }}&password=${{ secrets.PASS }}&output=ts" -OutFile "EPG.xml"
+        
       - name: Cleanup
         run: |
           (Get-Content "EPG.xml" -Raw) -Replace "${{ secrets.FIND }}", "${{ secrets.REPLACE }}" | Set-Content "EPG.xml"
@@ -30,7 +33,5 @@ jobs:
       - name: Commit changes (if needed)
         run: |
           git config --global user.name "${{ secrets.GIT_USER }}" && git config --global user.email "${{ secrets.GIT_EMAIL }}"
-          git add EPG.xml && git commit -m "[Auto commit] latest update"
-          git status && git push origin main
-
+          git add EPG.xml && git commit -m "Auto Update" && git push origin main
 #################################################################################################
