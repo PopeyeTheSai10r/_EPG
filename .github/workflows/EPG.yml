@@ -1,0 +1,36 @@
+#################################################################################################
+
+name: EPG
+on:
+  schedule:
+  - cron: "0 5 * * *"
+  workflow_dispatch:
+  
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Checkout
+        run: git checkout
+
+      - name: Download
+        run: Invoke-RestMethod "http://${{ secrets.URL }/xmltv.php?username=${{ secrets.USER }}&password=${{ secrets.PASS }}&output=ts" -OutFile "EPG.xml"
+          
+      - name: Cleanup
+        run: |
+          (Get-Content "EPG.xml" -Raw) -Replace "${{ secrets.FIND }}", "${{ secrets.REPLACE }}" | Set-Content "EPG.xml"
+          (Get-Content "EPG.xml" -Raw) -Replace "${{ secrets.FIND2 }}", "${{ secrets.REPLACE2 }}" | Set-Content "EPG.xml"
+          
+      - name: Commit changes (if needed)
+        run: |
+          git config --global user.name "${{ secrets.GIT_USER }}" && git config --global user.email "${{ secrets.GIT_EMAIL }}"
+          git add EPG.xml && git commit -m "[Auto commit] latest update"
+          git status && git push origin main
+
+#################################################################################################
