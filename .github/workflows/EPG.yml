@@ -3,7 +3,7 @@
 name: EPG
 on:
   schedule:
-  - cron: "30 4/8 * * *"
+  - cron: "30 */6 * * *"
   workflow_dispatch:
   
 defaults:
