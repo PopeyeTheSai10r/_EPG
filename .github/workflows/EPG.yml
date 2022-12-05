@@ -20,7 +20,14 @@ jobs:
         run: git checkout
 
       - name: Download
-        run: Invoke-RestMethod "http://${{ secrets.URL }}/xmltv.php?username=${{ secrets.USER }}&password=${{ secrets.PASS }}&output=ts" -OutFile "EPG.xml"
+        uses: nick-fields/retry@v2.8.2
+        with:
+            timeout_minutes: 20
+            max_attempts: 3
+            shell: pwsh
+            retry_on_exit_code: 1
+            command: Invoke-RestMethod "http://${{ secrets.URL }}/xmltv.php?username=${{ secrets.USER }}&password=${{ secrets.PASS }}&output=ts" -OutFile "EPG.xml"
+        
           
       - name: Cleanup
         run: |
