@@ -1,9 +1,10 @@
 #################################################################################################
 name: EPG
-on:
-  schedule:
-  - cron: "15 */6 * * *"
-  workflow_dispatch:
+#on:
+#  schedule:
+#  - cron: "15 */6 * * *"
+#  workflow_dispatch:
+
   
 defaults:
   run:
